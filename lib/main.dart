@@ -11,6 +11,9 @@ import 'widgets/ip_settings_dialog.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Hide system status bar and bottom navigation bar for true immersive fullscreen on Android
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
   // Lock landscape orientation
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.landscapeLeft,
