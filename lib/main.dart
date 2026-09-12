@@ -29,7 +29,7 @@ class SmartPsuCyberpunkApp extends StatelessWidget {
       title: 'SMART PSU v1.0.0 PRO',
       debugShowCheckedModeBanner: false,
       theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF08080A),
+        scaffoldBackgroundColor: const Color(0xFF08080C),
         primaryColor: const Color(0xFF00E5FF),
         textTheme: GoogleFonts.rajdhaniTextTheme(ThemeData.dark().textTheme),
       ),
@@ -45,7 +45,7 @@ class CyberpunkDashboardScreen extends StatefulWidget {
   State<CyberpunkDashboardScreen> createState() => _CyberpunkDashboardScreenState();
 }
 
-class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
+class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> with SingleTickerProviderStateMixin {
   final UdpService _udpService = UdpService();
   final TextEditingController _terminalController = TextEditingController();
 
@@ -117,31 +117,31 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
         return Scaffold(
           body: SafeArea(
             child: Container(
-              color: const Color(0xFF08080A),
-              padding: const EdgeInsets.all(8),
+              color: const Color(0xFF07080B),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               child: Column(
                 children: [
-                  // 1. TOP HEADER STATUS BAR (Ultra Compact Landscape)
+                  // 1. TOP HEADER STATUS BAR
                   _buildHeader(isConnected, telemetry),
 
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 8),
 
-                  // 2. MAIN COCKPIT: LEFT GAUGES & RIGHT GRAPH / TERMINAL
+                  // 2. MAIN COCKPIT: LEFT METERS & RIGHT OSCILLOSCOPE
                   Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // LEFT PANEL: Multi-Channel Digital Multimeter Meters (38% width)
+                        // LEFT PANEL: Multi-Channel Digital Multimeter Meters (36% width)
                         Expanded(
-                          flex: 38,
+                          flex: 36,
                           child: _buildLeftMetersPanel(telemetry),
                         ),
 
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 10),
 
-                        // RIGHT PANEL: Oscilloscope & Multi-Mode View (62% width)
+                        // RIGHT PANEL: Oscilloscope & Multi-Mode View (64% width)
                         Expanded(
-                          flex: 62,
+                          flex: 64,
                           child: _buildRightOscilloscopePanel(telemetry),
                         ),
                       ],
@@ -159,69 +159,74 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
   // --- TOP HEADER ---
   Widget _buildHeader(bool isConnected, PsuTelemetry t) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF131318),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF27272A)),
+        color: const Color(0xFF10121A),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFF1E2333)),
         boxShadow: const [
-          BoxShadow(color: Colors.black45, blurRadius: 4, offset: Offset(0, 2)),
+          BoxShadow(color: Colors.black87, blurRadius: 8, offset: Offset(0, 2)),
         ],
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Logo & Branding
+          // Logo & Branding Badge
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [Color(0xFFFF3344), Color(0xFFD50000)]),
-                  borderRadius: BorderRadius.circular(4),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFFFF2233), Color(0xFFB70015)],
+                  ),
+                  borderRadius: BorderRadius.circular(5),
                   boxShadow: [
-                    BoxShadow(color: const Color(0xFFFF3344).withOpacity(0.5), blurRadius: 6),
+                    BoxShadow(
+                      color: const Color(0xFFFF2233).withOpacity(0.5),
+                      blurRadius: 8,
+                    ),
                   ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.bolt, color: Colors.yellowAccent, size: 13),
-                    const SizedBox(width: 3),
+                    const Icon(Icons.flash_on_rounded, color: Colors.yellowAccent, size: 14),
+                    const SizedBox(width: 4),
                     Text(
                       'NURHADI',
                       style: GoogleFonts.orbitron(
-                        fontSize: 10.5,
+                        fontSize: 11,
                         fontWeight: FontWeight.w900,
                         color: Colors.white,
-                        letterSpacing: 1.1,
+                        letterSpacing: 1.2,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Text(
                 'SMART PSU',
                 style: GoogleFonts.orbitron(
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
-                  letterSpacing: 1.2,
+                  letterSpacing: 1.5,
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF08080A),
-                  borderRadius: BorderRadius.circular(3),
+                  color: const Color(0xFF08080C),
+                  borderRadius: BorderRadius.circular(4),
                   border: Border.all(color: const Color(0xFF00E5FF).withOpacity(0.4)),
                 ),
                 child: Text(
                   'v1.0.0 PRO',
                   style: GoogleFonts.jetBrainsMono(
-                    fontSize: 8.5,
+                    fontSize: 9,
                     fontWeight: FontWeight.bold,
                     color: const Color(0xFF00E5FF),
                   ),
@@ -230,89 +235,97 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
             ],
           ),
 
-          // Quick Channel Pills (CH1, CH2, CH3)
+          // Quick Channel Readouts with Smooth Animation
           Row(
             children: [
-              _buildQuickPill('CH1', '${t.v1.toStringAsFixed(1)}V', '${t.i1.toStringAsFixed(0)}mA', const Color(0xFF00E5FF)),
-              const SizedBox(width: 6),
-              _buildQuickPill('CH2', '${t.v2.toStringAsFixed(1)}V', '${t.i2.toStringAsFixed(0)}mA', const Color(0xFF00FF66)),
-              const SizedBox(width: 6),
-              _buildQuickPill('CH3', '${t.v3.toStringAsFixed(1)}V', '${t.i3.toStringAsFixed(0)}mA', const Color(0xFFFFDD00)),
+              _buildSmoothQuickPill('CH1', t.v1, t.i1, const Color(0xFF00E5FF)),
+              const SizedBox(width: 8),
+              _buildSmoothQuickPill('CH2', t.v2, t.i2, const Color(0xFF00FF66)),
+              const SizedBox(width: 8),
+              _buildSmoothQuickPill('CH3', t.v3, t.i3, const Color(0xFFFFDD00)),
             ],
           ),
 
-          // IP Status & Actions
+          // Right Status & Action Buttons
           Row(
             children: [
-              // Current Mode Tag
+              // Mode Pill
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3.5),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF08080A),
-                  borderRadius: BorderRadius.circular(4),
-                  border: Border.all(color: const Color(0xFFFF8800).withOpacity(0.4)),
+                  color: const Color(0xFF08080C),
+                  borderRadius: BorderRadius.circular(5),
+                  border: Border.all(color: const Color(0xFFFF8800).withOpacity(0.5)),
                 ),
                 child: Text(
                   '$_currentMode MODE',
-                  style: GoogleFonts.orbitron(fontSize: 8.5, fontWeight: FontWeight.bold, color: const Color(0xFFFF8800)),
+                  style: GoogleFonts.orbitron(
+                    fontSize: 9,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFFFF8800),
+                  ),
                 ),
               ),
 
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
 
-              // IP Status Button
-              InkWell(
-                onTap: _showIpDialog,
-                borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF08080A),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isConnected ? const Color(0xFF00FF66) : const Color(0xFFFF3344),
+              // IP Status & Latency
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _showIpDialog,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF08080C),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: isConnected ? const Color(0xFF00FF66) : const Color(0xFFFF3344),
+                        width: 1.1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 7,
+                          height: 7,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isConnected ? const Color(0xFF00FF66) : const Color(0xFFFF3344),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isConnected ? const Color(0xFF00FF66) : const Color(0xFFFF3344),
+                                blurRadius: 6,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          _udpService.isDemoMode
+                              ? 'DEMO [${_udpService.espIp}]'
+                              : (isConnected ? '${_udpService.espIp} (${_udpService.latencyMs}ms)' : 'OFFLINE [${_udpService.espIp}]'),
+                          style: GoogleFonts.jetBrainsMono(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.bold,
+                            color: isConnected ? const Color(0xFF00FF66) : const Color(0xFFFF3344),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: isConnected ? const Color(0xFF00FF66) : const Color(0xFFFF3344),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isConnected ? const Color(0xFF00FF66) : const Color(0xFFFF3344),
-                              blurRadius: 4,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 5),
-                      Text(
-                        _udpService.isDemoMode
-                            ? 'DEMO [${_udpService.espIp}]'
-                            : (isConnected ? '${_udpService.espIp} (${_udpService.latencyMs}ms)' : 'OFFLINE [${_udpService.espIp}]'),
-                        style: GoogleFonts.jetBrainsMono(
-                          fontSize: 9,
-                          fontWeight: FontWeight.bold,
-                          color: isConnected ? const Color(0xFF00FF66) : const Color(0xFFFF3344),
-                        ),
-                      ),
-                    ],
-                  ),
                 ),
               ),
 
               const SizedBox(width: 6),
 
-              // Ping Button
+              // Ping Action Button
               IconButton(
                 onPressed: _showTestDialog,
-                icon: const Icon(Icons.wifi_tethering, size: 15, color: Color(0xFF00FF66)),
-                padding: const EdgeInsets.all(4),
+                icon: const Icon(Icons.wifi_tethering_rounded, size: 16, color: Color(0xFF00FF66)),
+                padding: const EdgeInsets.all(5),
                 constraints: const BoxConstraints(),
                 tooltip: 'Ping & Test Connection',
               ),
@@ -322,10 +335,10 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
               // OTA Flash Button
               IconButton(
                 onPressed: _showOtaDialog,
-                icon: const Icon(Icons.cloud_upload_outlined, size: 16, color: Color(0xFF00E5FF)),
-                padding: const EdgeInsets.all(4),
+                icon: const Icon(Icons.cloud_upload_rounded, size: 17, color: Color(0xFF00E5FF)),
+                padding: const EdgeInsets.all(5),
                 constraints: const BoxConstraints(),
-                tooltip: 'OTA Firmware Flash',
+                tooltip: 'OTA Wireless Firmware Flash',
               ),
             ],
           ),
@@ -334,21 +347,40 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
     );
   }
 
-  Widget _buildQuickPill(String title, String v, String i, Color color) {
+  Widget _buildSmoothQuickPill(String title, double targetV, double targetMa, Color color) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: const Color(0xFF08080A),
-        borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: color.withOpacity(0.3)),
+        color: const Color(0xFF08080C),
+        borderRadius: BorderRadius.circular(5),
+        border: Border.all(color: color.withOpacity(0.35)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text('$title: ', style: GoogleFonts.jetBrainsMono(fontSize: 8, color: Colors.white54, fontWeight: FontWeight.bold)),
-          Text(v, style: GoogleFonts.jetBrainsMono(fontSize: 8.5, color: color, fontWeight: FontWeight.bold)),
-          const SizedBox(width: 3),
-          Text(i, style: GoogleFonts.jetBrainsMono(fontSize: 7.5, color: Colors.white38)),
+          Text(
+            '$title: ',
+            style: GoogleFonts.jetBrainsMono(fontSize: 8.5, color: Colors.white54, fontWeight: FontWeight.bold),
+          ),
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: targetV, end: targetV),
+            duration: const Duration(milliseconds: 140),
+            curve: Curves.easeOutQuad,
+            builder: (context, animV, _) => Text(
+              '${animV.toStringAsFixed(1)}V',
+              style: GoogleFonts.jetBrainsMono(fontSize: 9.5, color: color, fontWeight: FontWeight.bold),
+            ),
+          ),
+          const SizedBox(width: 4),
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: targetMa, end: targetMa),
+            duration: const Duration(milliseconds: 140),
+            curve: Curves.easeOutQuad,
+            builder: (context, animI, _) => Text(
+              '${animI.toStringAsFixed(0)}mA',
+              style: GoogleFonts.jetBrainsMono(fontSize: 8, color: Colors.white38),
+            ),
+          ),
         ],
       ),
     );
@@ -356,7 +388,6 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
 
   // --- LEFT PANEL: MULTIMETER GAUGES & HARDWARE CONTROLS ---
   Widget _buildLeftMetersPanel(PsuTelemetry t) {
-    // Determine active metrics based on selected tab
     double activeV = t.v1;
     double activeMa = t.i1;
     String chBadge = 'CH1 EXT';
@@ -381,21 +412,24 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF131318),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF27272A)),
+        color: const Color(0xFF0D0E13),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF1E2333)),
+        boxShadow: const [
+          BoxShadow(color: Colors.black87, blurRadius: 10, offset: Offset(0, 3)),
+        ],
       ),
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // 1. Channel Selector Tabs (CH1, CH2, CH3, AVO)
           Container(
-            padding: const EdgeInsets.all(2),
+            padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
-              color: const Color(0xFF08080A),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFF27272A)),
+              color: const Color(0xFF06070A),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFF1F2330)),
             ),
             child: Row(
               children: [
@@ -407,196 +441,226 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
             ),
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
 
           // 2. PRIMARY STATS: ARUS & TEGANGAN BIG LCD
-          Row(
-            children: [
-              // ARUS (Current)
-              Expanded(
-                child: _buildLcdCard(
-                  title: 'ARUS',
-                  badge: chBadge,
-                  value: activeA.toStringAsFixed(3),
-                  unit: 'A',
-                  color: const Color(0xFFFF8800),
-                  footerLeft: 'MA: ${activeMa.toStringAsFixed(0)} mA',
-                  footerRight: 'SHNT: 0.1Ω',
-                ),
-              ),
-              const SizedBox(width: 6),
-              // TEGANGAN (Voltage)
-              Expanded(
-                child: _buildLcdCard(
-                  title: 'TEGANGAN',
-                  badge: chBadge,
-                  value: activeV.toStringAsFixed(2),
-                  unit: 'V',
-                  color: const Color(0xFFFFDD00),
-                  footerLeft: 'BUS: ACTIVE',
-                  footerRight: 'MAX: 26.0V',
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 6),
-
-          // 3. SECONDARY STATS: DAYA & KAPASITAS
-          Row(
-            children: [
-              // DAYA
-              Expanded(
-                child: _buildLcdCard(
-                  title: 'DAYA AKTIF',
-                  badge: '',
-                  value: activeW.toStringAsFixed(2),
-                  unit: 'W',
-                  color: const Color(0xFFFF3344),
-                  footerLeft: 'P = V × I',
-                  footerRight: '',
-                  isCompact: true,
-                ),
-              ),
-              const SizedBox(width: 6),
-              // KAPASITAS / ENERGY
-              Expanded(
-                child: _buildLcdCard(
-                  title: 'KAPASITAS',
-                  badge: '',
-                  value: _udpService.totalCapacityMah.floor().toString(),
-                  unit: 'mAh',
-                  color: const Color(0xFF00E5FF),
-                  footerLeft: 'ENERGY: ${_udpService.totalEnergyMWh.toStringAsFixed(1)} mWh',
-                  footerRight: '',
-                  isCompact: true,
-                  onReset: _udpService.resetTripStats,
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 6),
-
-          // 4. DATA LINES: ADS1115 & QC PROBE (AVO, D+, D-)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFF08080A),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFFFF8800).withOpacity(0.3)),
-            ),
-            child: Column(
+          Expanded(
+            flex: 28,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'ADS1115 16-BIT ADC / QC PROBE',
-                      style: GoogleFonts.orbitron(fontSize: 7.5, color: Colors.white54, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      qcProtocol,
-                      style: GoogleFonts.jetBrainsMono(fontSize: 8, color: const Color(0xFF00FF66), fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                // ARUS (Current)
+                Expanded(
+                  child: _buildSmoothLcdCard(
+                    title: 'ARUS',
+                    badge: chBadge,
+                    numericValue: activeA,
+                    decimals: 3,
+                    unit: 'A',
+                    color: const Color(0xFFFF8800),
+                    footerLeft: 'MA: ${activeMa.toStringAsFixed(0)} mA',
+                    footerRight: 'SHNT: 0.1Ω',
+                  ),
                 ),
-                const SizedBox(height: 3),
-                Row(
-                  children: [
-                    _buildAdcItem('AVO PROBE', '${t.avo.toStringAsFixed(2)}V', const Color(0xFFFF3344)),
-                    const SizedBox(width: 4),
-                    _buildAdcItem('QC D+', '${t.dp.toStringAsFixed(2)}V', const Color(0xFF00E5FF)),
-                    const SizedBox(width: 4),
-                    _buildAdcItem('QC D-', '${t.dm.toStringAsFixed(2)}V', const Color(0xFFFFDD00)),
-                  ],
+                const SizedBox(width: 8),
+                // TEGANGAN (Voltage)
+                Expanded(
+                  child: _buildSmoothLcdCard(
+                    title: 'TEGANGAN',
+                    badge: chBadge,
+                    numericValue: activeV,
+                    decimals: 2,
+                    unit: 'V',
+                    color: const Color(0xFFFFDD00),
+                    footerLeft: 'BUS: ACTIVE',
+                    footerRight: 'MAX: 26.0V',
+                  ),
                 ),
               ],
             ),
           ),
 
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
+
+          // 3. SECONDARY STATS: DAYA & KAPASITAS
+          Expanded(
+            flex: 22,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // DAYA
+                Expanded(
+                  child: _buildSmoothLcdCard(
+                    title: 'DAYA AKTIF',
+                    badge: '',
+                    numericValue: activeW,
+                    decimals: 2,
+                    unit: 'W',
+                    color: const Color(0xFFFF3344),
+                    footerLeft: 'P = V × I',
+                    footerRight: '',
+                    isCompact: true,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // KAPASITAS / ENERGY
+                Expanded(
+                  child: _buildSmoothLcdCard(
+                    title: 'KAPASITAS',
+                    badge: '',
+                    numericValue: _udpService.totalCapacityMah,
+                    decimals: 0,
+                    unit: 'mAh',
+                    color: const Color(0xFF00E5FF),
+                    footerLeft: 'ENERGY: ${_udpService.totalEnergyMWh.toStringAsFixed(1)} mWh',
+                    footerRight: '',
+                    isCompact: true,
+                    onReset: _udpService.resetTripStats,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
+          // 4. DATA LINES: ADS1115 & QC PROBE (AVO, D+, D-)
+          Expanded(
+            flex: 18,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF06070A),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFFFF8800).withOpacity(0.35)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'ADS1115 16-BIT ADC / QC PROBE',
+                        style: GoogleFonts.orbitron(fontSize: 8, color: Colors.white54, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        qcProtocol,
+                        style: GoogleFonts.jetBrainsMono(fontSize: 8.5, color: const Color(0xFF00FF66), fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      _buildSmoothAdcItem('AVO PROBE', t.avo, const Color(0xFFFF3344)),
+                      const SizedBox(width: 6),
+                      _buildSmoothAdcItem('QC D+', t.dp, const Color(0xFF00E5FF)),
+                      const SizedBox(width: 6),
+                      _buildSmoothAdcItem('QC D-', t.dm, const Color(0xFFFFDD00)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 8),
 
           // 5. HARDWARE SWITCH CONTROLS (MOSFET, RELAY 1, RELAY 2)
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-            decoration: BoxDecoration(
-              color: const Color(0xFF08080A),
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFF27272A)),
+          Expanded(
+            flex: 18,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: const Color(0xFF06070A),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: const Color(0xFF1F2330)),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'HARDWARE SWITCH CONTROLS',
+                        style: GoogleFonts.orbitron(fontSize: 8, color: Colors.white54, fontWeight: FontWeight.bold),
+                      ),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: _udpService.toggleAllSwitches,
+                          child: Text(
+                            'MASTER TOGGLE',
+                            style: GoogleFonts.jetBrainsMono(
+                              fontSize: 8,
+                              color: const Color(0xFF00E5FF),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      _buildSwitchItem('MOSFET', t.mosfet, const Color(0xFF00E5FF), _udpService.toggleMosfet),
+                      const SizedBox(width: 8),
+                      _buildSwitchItem('RELAY 1', t.relay1, const Color(0xFF00FF66), _udpService.toggleRelay1),
+                      const SizedBox(width: 8),
+                      _buildSwitchItem('RELAY 2', t.relay2, const Color(0xFFFFDD00), _udpService.toggleRelay2),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'HARDWARE SWITCH CONTROLS',
-                      style: GoogleFonts.orbitron(fontSize: 7.5, color: Colors.white54, fontWeight: FontWeight.bold),
+          ),
+
+          const SizedBox(height: 8),
+
+          // 6. ACTION BUTTON: MULAI ANALISA LIVE
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => setState(() => _isAnalyzing = !_isAnalyzing),
+              borderRadius: BorderRadius.circular(8),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: _isAnalyzing ? const Color(0xFFFF3344) : const Color(0xFFFF8800),
+                    width: 1.4,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: (_isAnalyzing ? const Color(0xFFFF3344) : const Color(0xFFFF8800)).withOpacity(0.25),
+                      blurRadius: 10,
                     ),
-                    InkWell(
-                      onTap: _udpService.toggleAllSwitches,
-                      child: Text(
-                        'MASTER TOGGLE',
-                        style: GoogleFonts.jetBrainsMono(fontSize: 7.5, color: const Color(0xFF00E5FF), fontWeight: FontWeight.bold),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      _isAnalyzing ? Icons.stop_rounded : Icons.play_arrow_rounded,
+                      size: 18,
+                      color: _isAnalyzing ? const Color(0xFFFF3344) : const Color(0xFFFF8800),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      _isAnalyzing ? 'BERHENTI ANALISA' : 'MULAI ANALISA LIVE',
+                      style: GoogleFonts.orbitron(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        color: _isAnalyzing ? const Color(0xFFFF3344) : const Color(0xFFFF8800),
+                        letterSpacing: 1.2,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    _buildSwitchItem('MOSFET', t.mosfet, const Color(0xFF00E5FF), _udpService.toggleMosfet),
-                    const SizedBox(width: 6),
-                    _buildSwitchItem('RELAY 1', t.relay1, const Color(0xFF00FF66), _udpService.toggleRelay1),
-                    const SizedBox(width: 6),
-                    _buildSwitchItem('RELAY 2', t.relay2, const Color(0xFFFFDD00), _udpService.toggleRelay2),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          const Spacer(),
-
-          // 6. ACTION BUTTON: MULAI ANALISA LIVE
-          InkWell(
-            onTap: () => setState(() => _isAnalyzing = !_isAnalyzing),
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(
-                  color: _isAnalyzing ? const Color(0xFFFF3344) : const Color(0xFFFF8800),
-                  width: 1.2,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: (_isAnalyzing ? const Color(0xFFFF3344) : const Color(0xFFFF8800)).withOpacity(0.2),
-                    blurRadius: 8,
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    _isAnalyzing ? Icons.stop : Icons.play_arrow,
-                    size: 16,
-                    color: _isAnalyzing ? const Color(0xFFFF3344) : const Color(0xFFFF8800),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    _isAnalyzing ? 'BERHENTI ANALISA' : 'MULAI ANALISA LIVE',
-                    style: GoogleFonts.orbitron(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: _isAnalyzing ? const Color(0xFFFF3344) : const Color(0xFFFF8800),
-                    ),
-                  ),
-                ],
               ),
             ),
           ),
@@ -608,23 +672,32 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
   Widget _buildChannelTab(int ch, String label, Color color) {
     final isSelected = _selectedChannel == ch;
     return Expanded(
-      child: InkWell(
-        onTap: () => setState(() => _selectedChannel = ch),
-        borderRadius: BorderRadius.circular(4),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          decoration: BoxDecoration(
-            color: isSelected ? color.withOpacity(0.2) : Colors.transparent,
-            borderRadius: BorderRadius.circular(4),
-            border: isSelected ? Border.all(color: color.withOpacity(0.6)) : null,
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            label,
-            style: GoogleFonts.orbitron(
-              fontSize: 9.5,
-              fontWeight: FontWeight.bold,
-              color: isSelected ? color : Colors.white54,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => setState(() => _selectedChannel = ch),
+          borderRadius: BorderRadius.circular(6),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            decoration: BoxDecoration(
+              color: isSelected ? color.withOpacity(0.22) : Colors.transparent,
+              borderRadius: BorderRadius.circular(6),
+              border: isSelected ? Border.all(color: color.withOpacity(0.7), width: 1.2) : null,
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(color: color.withOpacity(0.4), blurRadius: 8),
+                    ]
+                  : null,
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              label,
+              style: GoogleFonts.orbitron(
+                fontSize: 10,
+                fontWeight: FontWeight.w800,
+                color: isSelected ? color : Colors.white54,
+              ),
             ),
           ),
         ),
@@ -632,10 +705,11 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
     );
   }
 
-  Widget _buildLcdCard({
+  Widget _buildSmoothLcdCard({
     required String title,
     required String badge,
-    required String value,
+    required double numericValue,
+    required int decimals,
     required String unit,
     required Color color,
     required String footerLeft,
@@ -644,66 +718,93 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
     VoidCallback? onReset,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: isCompact ? 5 : 7),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: const Color(0xFF08080A),
+        color: const Color(0xFF06070A),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.35)),
+        border: Border.all(color: color.withOpacity(0.4), width: 1.1),
         boxShadow: [
-          BoxShadow(color: color.withOpacity(0.06), blurRadius: 6),
+          BoxShadow(color: color.withOpacity(0.08), blurRadius: 8),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
                 title,
-                style: GoogleFonts.orbitron(fontSize: 8, fontWeight: FontWeight.bold, color: color),
+                style: GoogleFonts.orbitron(
+                  fontSize: 8.5,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                ),
               ),
               if (onReset != null)
-                InkWell(
-                  onTap: onReset,
-                  child: const Icon(Icons.refresh, size: 11, color: Colors.white54),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: onReset,
+                    child: const Icon(Icons.refresh_rounded, size: 13, color: Colors.white60),
+                  ),
                 )
               else if (badge.isNotEmpty)
                 Text(
                   badge,
-                  style: GoogleFonts.jetBrainsMono(fontSize: 7.5, color: Colors.white38, fontWeight: FontWeight.bold),
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 8,
+                    color: Colors.white38,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
             ],
           ),
-          const SizedBox(height: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
             children: [
-              Text(
-                value,
-                style: GoogleFonts.jetBrainsMono(
-                  fontSize: isCompact ? 20 : 26,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                  shadows: [Shadow(color: color.withOpacity(0.7), blurRadius: 8)],
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: numericValue, end: numericValue),
+                duration: const Duration(milliseconds: 140),
+                curve: Curves.easeOutQuad,
+                builder: (context, animVal, _) => Text(
+                  decimals == 0 ? animVal.floor().toString() : animVal.toStringAsFixed(decimals),
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: isCompact ? 22 : 30,
+                    fontWeight: FontWeight.w800,
+                    color: color,
+                    shadows: [
+                      Shadow(color: color.withOpacity(0.8), blurRadius: 10),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(width: 3),
+              const SizedBox(width: 4),
               Text(
                 unit,
-                style: GoogleFonts.jetBrainsMono(fontSize: 10, fontWeight: FontWeight.bold, color: color),
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: isCompact ? 11 : 13,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 2),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(footerLeft, style: GoogleFonts.jetBrainsMono(fontSize: 7, color: Colors.white38)),
+              Text(
+                footerLeft,
+                style: GoogleFonts.jetBrainsMono(fontSize: 7.5, color: Colors.white38, fontWeight: FontWeight.w600),
+              ),
               if (footerRight.isNotEmpty)
-                Text(footerRight, style: GoogleFonts.jetBrainsMono(fontSize: 7, color: Colors.white38)),
+                Text(
+                  footerRight,
+                  style: GoogleFonts.jetBrainsMono(fontSize: 7.5, color: Colors.white38, fontWeight: FontWeight.w600),
+                ),
             ],
           ),
         ],
@@ -711,22 +812,34 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
     );
   }
 
-  Widget _buildAdcItem(String label, String val, Color color) {
+  Widget _buildSmoothAdcItem(String label, double val, Color color) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(4),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 3),
         decoration: BoxDecoration(
-          color: const Color(0xFF131318),
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(color: const Color(0xFF27272A)),
+          color: const Color(0xFF10121A),
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(color: const Color(0xFF1F2330)),
         ),
         child: Column(
           children: [
-            Text(label, style: GoogleFonts.jetBrainsMono(fontSize: 7, color: Colors.white54)),
-            const SizedBox(height: 1),
             Text(
-              val,
-              style: GoogleFonts.jetBrainsMono(fontSize: 10.5, fontWeight: FontWeight.bold, color: color),
+              label,
+              style: GoogleFonts.jetBrainsMono(fontSize: 7.5, color: Colors.white54, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 1),
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: val, end: val),
+              duration: const Duration(milliseconds: 140),
+              curve: Curves.easeOutQuad,
+              builder: (context, animV, _) => Text(
+                '${animV.toStringAsFixed(2)}V',
+                style: GoogleFonts.jetBrainsMono(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                ),
+              ),
             ),
           ],
         ),
@@ -736,32 +849,53 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
 
   Widget _buildSwitchItem(String label, bool isOn, Color color, VoidCallback onToggle) {
     return Expanded(
-      child: InkWell(
-        onTap: onToggle,
-        borderRadius: BorderRadius.circular(6),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          decoration: BoxDecoration(
-            color: isOn ? color.withOpacity(0.15) : const Color(0xFF131318),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(color: isOn ? color : const Color(0xFF27272A), width: 1.2),
-            boxShadow: isOn
-                ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 6)]
-                : null,
-          ),
-          child: Column(
-            children: [
-              Icon(Icons.power_settings_new, size: 14, color: isOn ? color : Colors.white38),
-              const SizedBox(height: 1),
-              Text(
-                label,
-                style: GoogleFonts.orbitron(fontSize: 7.5, fontWeight: FontWeight.bold, color: Colors.white70),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onToggle,
+          borderRadius: BorderRadius.circular(6),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              color: isOn ? color.withOpacity(0.18) : const Color(0xFF10121A),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: isOn ? color : const Color(0xFF1F2330),
+                width: 1.2,
               ),
-              Text(
-                isOn ? 'ON' : 'OFF',
-                style: GoogleFonts.jetBrainsMono(fontSize: 7, fontWeight: FontWeight.bold, color: isOn ? color : Colors.white38),
-              ),
-            ],
+              boxShadow: isOn
+                  ? [
+                      BoxShadow(color: color.withOpacity(0.45), blurRadius: 8),
+                    ]
+                  : null,
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.power_settings_new_rounded,
+                  size: 15,
+                  color: isOn ? color : Colors.white38,
+                ),
+                const SizedBox(height: 1),
+                Text(
+                  label,
+                  style: GoogleFonts.orbitron(
+                    fontSize: 8,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white70,
+                  ),
+                ),
+                Text(
+                  isOn ? 'ON' : 'OFF',
+                  style: GoogleFonts.jetBrainsMono(
+                    fontSize: 7.5,
+                    fontWeight: FontWeight.w800,
+                    color: isOn ? color : Colors.white38,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -772,46 +906,58 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
   Widget _buildRightOscilloscopePanel(PsuTelemetry t) {
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF131318),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF27272A)),
+        color: const Color(0xFF0D0E13),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF1E2333)),
+        boxShadow: const [
+          BoxShadow(color: Colors.black87, blurRadius: 10, offset: Offset(0, 3)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // 1. Navigation Modes Bar (PSU, USB, PROBE, WAVE, TERMINAL, SET)
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
             decoration: BoxDecoration(
-              color: const Color(0xFF08080A).withOpacity(0.8),
-              borderRadius: const BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-              border: const Border(bottom: BorderSide(color: Color(0xFF27272A))),
+              color: const Color(0xFF13141C),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+              border: const Border(
+                bottom: BorderSide(color: Color(0xFF1F2330), width: 1.2),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Row(
                   children: [
-                    _buildNavButton('PSU', Icons.bolt, 'PSU'),
-                    const SizedBox(width: 12),
-                    _buildNavButton('USB/QC', Icons.usb, 'USB'),
-                    const SizedBox(width: 12),
-                    _buildNavButton('PROBE', Icons.speed, 'PROBE'),
-                    const SizedBox(width: 12),
-                    _buildNavButton('WAVE', Icons.waves, 'WAVE'),
-                    const SizedBox(width: 12),
-                    _buildNavButton('TERMINAL', Icons.terminal, 'TERMINAL'),
-                    const SizedBox(width: 12),
-                    _buildNavButton('SET', Icons.settings, 'SET', onTap: _showIpDialog),
+                    _buildNavButton('PSU', Icons.bolt_rounded, 'PSU'),
+                    const SizedBox(width: 16),
+                    _buildNavButton('USB/QC', Icons.usb_rounded, 'USB'),
+                    const SizedBox(width: 16),
+                    _buildNavButton('PROBE', Icons.speed_rounded, 'PROBE'),
+                    const SizedBox(width: 16),
+                    _buildNavButton('WAVE', Icons.waves_rounded, 'WAVE'),
+                    const SizedBox(width: 16),
+                    _buildNavButton('TERMINAL', Icons.terminal_rounded, 'TERMINAL'),
+                    const SizedBox(width: 16),
+                    _buildNavButton('SET', Icons.settings_rounded, 'SET', onTap: _showIpDialog),
                   ],
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.sensors, size: 12, color: Color(0xFF00FF66)),
+                    const Icon(Icons.sensors_rounded, size: 14, color: Color(0xFF00FF66)),
                     const SizedBox(width: 4),
                     Text(
                       '${_udpService.pollingIntervalMs}ms (${(1000 / _udpService.pollingIntervalMs).round()}Hz)',
-                      style: GoogleFonts.jetBrainsMono(fontSize: 8.5, color: const Color(0xFF00FF66), fontWeight: FontWeight.bold),
+                      style: GoogleFonts.jetBrainsMono(
+                        fontSize: 9,
+                        color: const Color(0xFF00FF66),
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -841,22 +987,45 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
 
   Widget _buildNavButton(String label, IconData icon, String modeKey, {VoidCallback? onTap}) {
     final isActive = _currentMode == modeKey && onTap == null;
-    return InkWell(
-      onTap: onTap ?? () => _switchMode(modeKey),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: isActive ? const Color(0xFF00E5FF) : Colors.white38),
-          const SizedBox(height: 1),
-          Text(
-            label,
-            style: GoogleFonts.orbitron(
-              fontSize: 8,
-              fontWeight: FontWeight.bold,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap ?? () => _switchMode(modeKey),
+        borderRadius: BorderRadius.circular(4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
               color: isActive ? const Color(0xFF00E5FF) : Colors.white38,
             ),
-          ),
-        ],
+            const SizedBox(height: 2),
+            Text(
+              label,
+              style: GoogleFonts.orbitron(
+                fontSize: 8.5,
+                fontWeight: FontWeight.w800,
+                color: isActive ? const Color(0xFF00E5FF) : Colors.white38,
+              ),
+            ),
+            const SizedBox(height: 2),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 180),
+              height: 2,
+              width: isActive ? 22 : 0,
+              decoration: BoxDecoration(
+                color: isActive ? const Color(0xFF00E5FF) : Colors.transparent,
+                borderRadius: BorderRadius.circular(2),
+                boxShadow: isActive
+                    ? [
+                        BoxShadow(color: const Color(0xFF00E5FF).withOpacity(0.8), blurRadius: 4),
+                      ]
+                    : null,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -864,8 +1033,8 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
   // --- INTERACTIVE TERMINAL VIEW ---
   Widget _buildTerminalView() {
     return Container(
-      color: const Color(0xFF08080A),
-      padding: const EdgeInsets.all(8),
+      color: const Color(0xFF07080B),
+      padding: const EdgeInsets.all(12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -874,67 +1043,70 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> {
             children: [
               Text(
                 'SMART PSU SERIAL CONSOLE',
-                style: GoogleFonts.orbitron(fontSize: 10, color: const Color(0xFF00FF66), fontWeight: FontWeight.bold),
+                style: GoogleFonts.orbitron(fontSize: 11, color: const Color(0xFF00FF66), fontWeight: FontWeight.bold),
               ),
               IconButton(
                 onPressed: () => _switchMode('PSU'),
-                icon: const Icon(Icons.close, size: 14, color: Colors.white54),
+                icon: const Icon(Icons.close_rounded, size: 16, color: Colors.white54),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
               ),
             ],
           ),
-          const Divider(color: Color(0xFF27272A), height: 8),
+          const Divider(color: Color(0xFF1E2333), height: 12),
           Expanded(
             child: ListView.builder(
               reverse: false,
               itemCount: _udpService.terminalLogs.length,
               itemBuilder: (context, index) {
                 final log = _udpService.terminalLogs[index];
-                return Text(
-                  log,
-                  style: GoogleFonts.jetBrainsMono(fontSize: 10, color: const Color(0xFF00FF66)),
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 1.5),
+                  child: Text(
+                    log,
+                    style: GoogleFonts.jetBrainsMono(fontSize: 10.5, color: const Color(0xFF00FF66)),
+                  ),
                 );
               },
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _terminalController,
-                  style: GoogleFonts.jetBrainsMono(fontSize: 11, color: Colors.white),
+                  style: GoogleFonts.jetBrainsMono(fontSize: 12, color: Colors.white),
                   onSubmitted: (val) {
                     _udpService.sendRawTerminalCommand(val);
                     _terminalController.clear();
                   },
                   decoration: InputDecoration(
                     hintText: 'Ketik perintah: mosfet on, relay1 on, status, ping...',
-                    hintStyle: GoogleFonts.jetBrainsMono(fontSize: 10, color: Colors.white24),
+                    hintStyle: GoogleFonts.jetBrainsMono(fontSize: 10.5, color: Colors.white24),
                     filled: true,
-                    fillColor: const Color(0xFF131318),
+                    fillColor: const Color(0xFF10121A),
                     isDense: true,
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF27272A))),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF27272A))),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF1E2333))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF1E2333))),
                     focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: const BorderSide(color: Color(0xFF00FF66))),
                   ),
                 ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 8),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF00FF66),
                   foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                 ),
                 onPressed: () {
                   _udpService.sendRawTerminalCommand(_terminalController.text);
                   _terminalController.clear();
                 },
-                child: Text('KIRIM', style: GoogleFonts.orbitron(fontSize: 10, fontWeight: FontWeight.bold)),
+                child: Text('KIRIM', style: GoogleFonts.orbitron(fontSize: 11, fontWeight: FontWeight.bold)),
               ),
             ],
           ),

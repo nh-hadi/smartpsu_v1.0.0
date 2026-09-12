@@ -29,7 +29,7 @@ class CyberpunkTelemetryChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate statistics
+    // Calculate live statistics
     double peak = 0.0;
     double min = 9999.0;
     double sum = 0.0;
@@ -48,91 +48,135 @@ class CyberpunkTelemetryChart extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFF131318),
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF00E5FF).withOpacity(0.3)),
+        color: const Color(0xFF0D0E13),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFFF3344).withOpacity(0.35)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF00E5FF).withOpacity(0.06),
-            blurRadius: 10,
+            color: const Color(0xFFFF3344).withOpacity(0.08),
+            blurRadius: 16,
             spreadRadius: 1,
+          ),
+          const BoxShadow(
+            color: Colors.black87,
+            blurRadius: 12,
+            offset: Offset(0, 4),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1. Metric Selector & Utilities Header Bar
+          // 1. TOP METRIC SELECTOR & TOOLBAR
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: const Color(0xFF08080A).withOpacity(0.6),
-              border: const Border(bottom: BorderSide(color: Color(0xFF27272A), width: 1)),
+              color: const Color(0xFF13141C),
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+              border: const Border(
+                bottom: BorderSide(color: Color(0xFF1F2330), width: 1.2),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // Metric filter buttons
-                Row(
-                  children: [
-                    Text(
-                      'METRIC:',
-                      style: GoogleFonts.orbitron(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white54),
-                    ),
-                    const SizedBox(width: 8),
-                    _buildMetricButton('ARUS', GraphMetric.arus, const Color(0xFFFF8800)),
-                    const SizedBox(width: 4),
-                    _buildMetricButton('VOLT', GraphMetric.volt, const Color(0xFFFFDD00)),
-                    const SizedBox(width: 4),
-                    _buildMetricButton('DAYA', GraphMetric.daya, const Color(0xFFFF3344)),
-                    const SizedBox(width: 4),
-                    _buildMetricButton('ALL CH', GraphMetric.all, const Color(0xFF00E5FF)),
-                  ],
-                ),
-
-                // Controls: Range label, Pause, Clear
+                // Metric Pills
                 Row(
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00E5FF).withOpacity(0.1),
+                        color: const Color(0xFF08080C),
                         borderRadius: BorderRadius.circular(4),
-                        border: Border.all(color: const Color(0xFF00E5FF).withOpacity(0.3)),
+                        border: Border.all(color: Colors.white12),
+                      ),
+                      child: Text(
+                        'METRIC',
+                        style: GoogleFonts.orbitron(
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white60,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _buildMetricButton('ARUS', GraphMetric.arus, const Color(0xFFFF8800)),
+                    const SizedBox(width: 5),
+                    _buildMetricButton('VOLT', GraphMetric.volt, const Color(0xFFFFDD00)),
+                    const SizedBox(width: 5),
+                    _buildMetricButton('DAYA', GraphMetric.daya, const Color(0xFFFF3344)),
+                    const SizedBox(width: 5),
+                    _buildMetricButton('ALL CH', GraphMetric.all, const Color(0xFF00E5FF)),
+                  ],
+                ),
+
+                // Controls & Range Display
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF08080C),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: const Color(0xFFFF3344).withOpacity(0.4)),
                       ),
                       child: Text(
                         _getRangeLabel(),
-                        style: GoogleFonts.jetBrainsMono(fontSize: 8, fontWeight: FontWeight.bold, color: const Color(0xFF00E5FF)),
+                        style: GoogleFonts.jetBrainsMono(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: const Color(0xFFFF3344),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Pause/Resume Button
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: onTogglePause,
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: isPaused ? const Color(0xFFFF8800) : const Color(0xFF1B1E2B),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: isPaused ? const Color(0xFFFF8800) : const Color(0xFF2C3246),
+                            ),
+                          ),
+                          child: Icon(
+                            isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
+                            size: 15,
+                            color: isPaused ? Colors.black : const Color(0xFF00E5FF),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 6),
-                    InkWell(
-                      onTap: onTogglePause,
-                      borderRadius: BorderRadius.circular(4),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: isPaused ? const Color(0xFFFF8800) : const Color(0xFF27272A),
-                          borderRadius: BorderRadius.circular(4),
+                    // Reset Button
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        onTap: onReset,
+                        borderRadius: BorderRadius.circular(6),
+                        child: Container(
+                          padding: const EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1B1E2B),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFF2C3246)),
+                          ),
+                          child: const Icon(
+                            Icons.refresh_rounded,
+                            size: 15,
+                            color: Color(0xFFFF8800),
+                          ),
                         ),
-                        child: Icon(
-                          isPaused ? Icons.play_arrow : Icons.pause,
-                          size: 13,
-                          color: isPaused ? Colors.black : const Color(0xFF00E5FF),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    InkWell(
-                      onTap: onReset,
-                      borderRadius: BorderRadius.circular(4),
-                      child: Container(
-                        padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF27272A),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: const Icon(Icons.refresh, size: 13, color: Color(0xFFFF8800)),
                       ),
                     ),
                   ],
@@ -141,15 +185,15 @@ class CyberpunkTelemetryChart extends StatelessWidget {
             ),
           ),
 
-          // 2. Waveform Canvas with On-Graph Stats Overlay
+          // 2. OSCILLOSCOPE CANVAS WITH Y-AXIS TICKS & ON-GRAPH STATS OVERLAY
           Expanded(
             child: Stack(
               children: [
                 Positioned.fill(
                   child: ClipRRect(
                     borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(10),
-                      bottomRight: Radius.circular(10),
+                      bottomLeft: Radius.circular(12),
+                      bottomRight: Radius.circular(12),
                     ),
                     child: CustomPaint(
                       painter: _CyberpunkWaveformPainter(
@@ -161,25 +205,34 @@ class CyberpunkTelemetryChart extends StatelessWidget {
                   ),
                 ),
 
-                // On-Graph Statistics Overlay (Bottom Right)
+                // Floating On-Graph Statistics Overlay (Bottom Right Glass Card)
                 Positioned(
-                  bottom: 8,
-                  right: 8,
+                  bottom: 12,
+                  right: 14,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF08080A).withOpacity(0.85),
-                      borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: const Color(0xFF27272A)),
-                      boxShadow: const [BoxShadow(color: Colors.black54, blurRadius: 6)],
+                      color: const Color(0xFF0A0B10).withOpacity(0.92),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF2C3246)),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black87,
+                          blurRadius: 10,
+                          offset: Offset(0, 3),
+                        ),
+                      ],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         _buildStatRow('PEAK', '${peak.toStringAsFixed(3)} $unit', const Color(0xFF00FF66)),
+                        const SizedBox(height: 2),
                         _buildStatRow('AVG', '${avg.toStringAsFixed(3)} $unit', const Color(0xFFA1A1AA)),
+                        const SizedBox(height: 2),
                         _buildStatRow('MIN', '${min.toStringAsFixed(3)} $unit', const Color(0xFF00E5FF)),
+                        const SizedBox(height: 2),
                         _buildStatRow('ENERGY', '${totalEnergyMwh.toStringAsFixed(1)} mWh', const Color(0xFFFFDD00)),
                       ],
                     ),
@@ -195,24 +248,38 @@ class CyberpunkTelemetryChart extends StatelessWidget {
 
   Widget _buildMetricButton(String label, GraphMetric targetMetric, Color activeColor) {
     final isSelected = metric == targetMetric;
-    return InkWell(
-      onTap: () => onMetricChanged(targetMetric),
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        decoration: BoxDecoration(
-          color: isSelected ? activeColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: isSelected
-              ? [BoxShadow(color: activeColor.withOpacity(0.5), blurRadius: 6)]
-              : null,
-        ),
-        child: Text(
-          label,
-          style: GoogleFonts.orbitron(
-            fontSize: 8.5,
-            fontWeight: FontWeight.bold,
-            color: isSelected ? (targetMetric == GraphMetric.arus || targetMetric == GraphMetric.volt ? Colors.black : Colors.white) : Colors.white54,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onMetricChanged(targetMetric),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+          decoration: BoxDecoration(
+            color: isSelected ? activeColor : const Color(0xFF08080C),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: isSelected ? activeColor : const Color(0xFF2C3246),
+              width: 1,
+            ),
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: activeColor.withOpacity(0.5),
+                      blurRadius: 8,
+                    ),
+                  ]
+                : null,
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.orbitron(
+              fontSize: 9,
+              fontWeight: FontWeight.w800,
+              color: isSelected
+                  ? (targetMetric == GraphMetric.arus || targetMetric == GraphMetric.volt ? Colors.black : Colors.white)
+                  : Colors.white60,
+            ),
           ),
         ),
       ),
@@ -220,21 +287,26 @@ class CyberpunkTelemetryChart extends StatelessWidget {
   }
 
   Widget _buildStatRow(String label, String value, Color color) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 0.5),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '$label: ',
-            style: GoogleFonts.jetBrainsMono(fontSize: 8, fontWeight: FontWeight.bold, color: color),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          '$label: ',
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 9,
+            fontWeight: FontWeight.w800,
+            color: color,
           ),
-          Text(
-            value,
-            style: GoogleFonts.jetBrainsMono(fontSize: 8, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+        Text(
+          value,
+          style: GoogleFonts.jetBrainsMono(
+            fontSize: 9.5,
+            fontWeight: FontWeight.w800,
+            color: Colors.white,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -250,7 +322,6 @@ class CyberpunkTelemetryChart extends StatelessWidget {
       if (selectedChannel == 3) return t.p3;
       return 0.0;
     } else {
-      // Arus (in Amperes)
       if (selectedChannel == 1) return t.i1 / 1000.0;
       if (selectedChannel == 2) return t.i2 / 1000.0;
       if (selectedChannel == 3) return t.i3 / 1000.0;
@@ -259,10 +330,10 @@ class CyberpunkTelemetryChart extends StatelessWidget {
   }
 
   String _getRangeLabel() {
-    if (metric == GraphMetric.volt) return 'CH$selectedChannel: 0-30V';
-    if (metric == GraphMetric.daya) return 'CH$selectedChannel: 0-50W';
+    if (metric == GraphMetric.volt) return 'SDP: 0 - 30.0V';
+    if (metric == GraphMetric.daya) return 'PWR: 0 - 50.0W';
     if (metric == GraphMetric.all) return 'ALL 4 TRACES';
-    return 'CH$selectedChannel: 0-5.000A';
+    return 'SDP: 0 - 3.000A';
   }
 }
 
@@ -279,58 +350,105 @@ class _CyberpunkWaveformPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // 1. Oscilloscope Grid
+    const leftMargin = 38.0;
+    const rightMargin = 10.0;
+    const topMargin = 14.0;
+    const bottomMargin = 14.0;
+
+    final plotWidth = size.width - leftMargin - rightMargin;
+    final plotHeight = size.height - topMargin - bottomMargin;
+
+    if (plotWidth <= 0 || plotHeight <= 0) return;
+
+    // Determine Scale Max
+    double maxScale = 3.0;
+    Color traceColor = const Color(0xFFFF8800);
+
+    if (metric == GraphMetric.volt) {
+      maxScale = 25.0;
+      traceColor = const Color(0xFFFFDD00);
+    } else if (metric == GraphMetric.daya) {
+      maxScale = 40.0;
+      traceColor = const Color(0xFFFF3344);
+    }
+
+    // 1. Draw Background Grid & Y-Axis Labels
     final gridPaint = Paint()
-      ..color = const Color(0xFF27272A).withOpacity(0.35)
-      ..strokeWidth = 1.0;
+      ..color = const Color(0xFF1A1F2C)
+      ..strokeWidth = 0.8;
 
-    const rows = 4;
-    for (int i = 1; i <= rows; i++) {
-      final y = size.height * (i / (rows + 1));
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+    const rows = 5;
+    for (int i = 0; i <= rows; i++) {
+      final y = topMargin + (plotHeight * (i / rows));
+      canvas.drawLine(Offset(leftMargin, y), Offset(size.width - rightMargin, y), gridPaint);
+
+      // Y-Axis Tick Text
+      final tickVal = maxScale * (1.0 - (i / rows));
+      final textSpan = TextSpan(
+        text: metric == GraphMetric.volt ? tickVal.toStringAsFixed(0) : tickVal.toStringAsFixed(1),
+        style: const TextStyle(
+          fontFamily: 'JetBrains Mono',
+          fontSize: 9,
+          color: Color(0xFF6B7280),
+          fontWeight: FontWeight.bold,
+        ),
+      );
+      final textPainter = TextPainter(
+        text: textSpan,
+        textAlign: TextAlign.right,
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      textPainter.paint(
+        canvas,
+        Offset(leftMargin - textPainter.width - 6, y - textPainter.height / 2),
+      );
     }
 
+    // Vertical Columns Grid
     const cols = 8;
-    for (int i = 1; i <= cols; i++) {
-      final x = size.width * (i / (cols + 1));
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
+    for (int i = 0; i <= cols; i++) {
+      final x = leftMargin + (plotWidth * (i / cols));
+      canvas.drawLine(Offset(x, topMargin), Offset(x, size.height - bottomMargin), gridPaint);
     }
 
-    // 2. Horizontal Target Guideline (Dashed effect)
+    // 2. Horizontal Reference Guideline (Dashed Red Line at 1.2A / target)
     final guidePaint = Paint()
-      ..color = const Color(0xFF00E5FF).withOpacity(0.3)
+      ..color = traceColor.withOpacity(0.45)
       ..strokeWidth = 1.0;
-    const dashWidth = 5.0;
+    const dashWidth = 6.0;
     const dashSpace = 4.0;
-    final guideY = size.height * 0.45;
-    double startX = 0;
-    while (startX < size.width) {
-      canvas.drawLine(Offset(startX, guideY), Offset(math.min(startX + dashWidth, size.width), guideY), guidePaint);
+    final guideY = topMargin + plotHeight * 0.4;
+    double startX = leftMargin;
+    while (startX < size.width - rightMargin) {
+      canvas.drawLine(
+        Offset(startX, guideY),
+        Offset(math.min(startX + dashWidth, size.width - rightMargin), guideY),
+        guidePaint,
+      );
       startX += dashWidth + dashSpace;
     }
 
     if (history.length < 2) return;
 
-    // 3. Render Metric Traces
+    // 3. Draw Metric Traces
     if (metric == GraphMetric.all) {
-      // Draw all channels simultaneously
-      _drawTrace(canvas, size, (t) => t.v1, 26.0, const Color(0xFF00E5FF), 'V1');
-      _drawTrace(canvas, size, (t) => t.v2, 26.0, const Color(0xFF00FF66), 'V2');
-      _drawTrace(canvas, size, (t) => t.v3, 26.0, const Color(0xFFFFDD00), 'V3');
-      _drawTrace(canvas, size, (t) => t.avo, 26.0, const Color(0xFFFF3344), 'AVO');
+      _drawSingleTrace(canvas, leftMargin, topMargin, plotWidth, plotHeight, (t) => t.v1, 26.0, const Color(0xFF00E5FF));
+      _drawSingleTrace(canvas, leftMargin, topMargin, plotWidth, plotHeight, (t) => t.v2, 26.0, const Color(0xFF00FF66));
+      _drawSingleTrace(canvas, leftMargin, topMargin, plotWidth, plotHeight, (t) => t.v3, 26.0, const Color(0xFFFFDD00));
+      _drawSingleTrace(canvas, leftMargin, topMargin, plotWidth, plotHeight, (t) => t.avo, 26.0, const Color(0xFFFF3344));
     } else {
-      double maxScale = 3.0;
-      Color traceColor = const Color(0xFFFF8800);
-
-      if (metric == GraphMetric.volt) {
-        maxScale = 25.0;
-        traceColor = const Color(0xFFFFDD00);
-      } else if (metric == GraphMetric.daya) {
-        maxScale = 35.0;
-        traceColor = const Color(0xFFFF3344);
-      }
-
-      _drawTrace(canvas, size, (t) => _getSingleValue(t), maxScale, traceColor, '', fillArea: true);
+      _drawSingleTrace(
+        canvas,
+        leftMargin,
+        topMargin,
+        plotWidth,
+        plotHeight,
+        (t) => _getSingleValue(t),
+        maxScale,
+        traceColor,
+        fillArea: true,
+      );
     }
   }
 
@@ -353,30 +471,31 @@ class _CyberpunkWaveformPainter extends CustomPainter {
     }
   }
 
-  void _drawTrace(
+  void _drawSingleTrace(
     Canvas canvas,
-    Size size,
+    double leftMargin,
+    double topMargin,
+    double plotWidth,
+    double plotHeight,
     double Function(PsuTelemetry) extractor,
     double maxScale,
-    Color color,
-    String label, {
+    Color color, {
     bool fillArea = false,
   }) {
-    final path = Path();
     final points = <Offset>[];
-    final stepX = size.width / (math.max(history.length - 1, 1));
+    final stepX = plotWidth / math.max(history.length - 1, 1);
 
     for (int i = 0; i < history.length; i++) {
-      final x = i * stepX;
+      final x = leftMargin + (i * stepX);
       final val = extractor(history[i]);
       final clamped = val.clamp(0.0, maxScale);
-      final y = size.height - (clamped / maxScale) * (size.height - 12) - 6;
+      final y = topMargin + plotHeight - (clamped / maxScale) * plotHeight;
       points.add(Offset(x, y));
     }
 
     if (points.isEmpty) return;
 
-    path.moveTo(points.first.dx, points.first.dy);
+    final path = Path()..moveTo(points.first.dx, points.first.dy);
     for (int i = 0; i < points.length - 1; i++) {
       final p0 = points[i];
       final p1 = points[i + 1];
@@ -386,34 +505,40 @@ class _CyberpunkWaveformPainter extends CustomPainter {
     }
     path.lineTo(points.last.dx, points.last.dy);
 
-    // Glowing stroke
+    // Outer Neon Glow
+    final glowPaint = Paint()
+      ..color = color.withOpacity(0.4)
+      ..strokeWidth = 6.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+
+    // Inner Sharp Neon Stroke
     final strokePaint = Paint()
       ..color = color
-      ..strokeWidth = 2.0
+      ..strokeWidth = 2.4
       ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final glowPaint = Paint()
-      ..color = color.withOpacity(0.3)
-      ..strokeWidth = 5.0
-      ..style = PaintingStyle.stroke
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3);
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
 
     canvas.drawPath(path, glowPaint);
     canvas.drawPath(path, strokePaint);
 
     if (fillArea) {
       final fillPath = Path.from(path)
-        ..lineTo(points.last.dx, size.height)
-        ..lineTo(points.first.dx, size.height)
+        ..lineTo(points.last.dx, topMargin + plotHeight)
+        ..lineTo(points.first.dx, topMargin + plotHeight)
         ..close();
 
       final fillPaint = Paint()
         ..shader = LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [color.withOpacity(0.25), color.withOpacity(0.0)],
-        ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
+          colors: [
+            color.withOpacity(0.28),
+            color.withOpacity(0.0),
+          ],
+        ).createShader(Rect.fromLTWH(leftMargin, topMargin, plotWidth, plotHeight));
 
       canvas.drawPath(fillPath, fillPaint);
     }

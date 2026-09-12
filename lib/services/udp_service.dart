@@ -9,8 +9,8 @@ enum ConnectionStatus { disconnected, searching, connected }
 class UdpService extends ChangeNotifier {
   PsuTelemetry _latestTelemetry = PsuTelemetry();
   ConnectionStatus _status = ConnectionStatus.disconnected;
-  String _espIp = '192.168.4.1'; // Default AP IP or LAN IP
-  int _pollingIntervalMs = 100;
+  String _espIp = '192.168.4.1';
+  int _pollingIntervalMs = 150; // Sweet spot 100-200ms
   bool _isDemoMode = false;
   int _latencyMs = 0;
 
@@ -31,8 +31,8 @@ class UdpService extends ChangeNotifier {
 
   // Terminal logs
   final List<String> _terminalLogs = [
-    '[SYSTEM] Smart PSU v1.0.0 Cockpit initialized.',
-    '[SYSTEM] Ready for HTTP REST API communication.',
+    '[SYSTEM] Smart PSU v1.0.0 Smooth 60FPS Engine initialized.',
+    '[SYSTEM] Telemetry Interval: 150ms (Ultra-smooth interpolation).',
   ];
 
   // Getters
@@ -57,7 +57,7 @@ class UdpService extends ChangeNotifier {
   }
 
   void setPollingInterval(int ms) {
-    _pollingIntervalMs = ms.clamp(50, 2000);
+    _pollingIntervalMs = ms.clamp(100, 200);
     startListening();
   }
 
@@ -71,6 +71,7 @@ class UdpService extends ChangeNotifier {
     _status = _isDemoMode ? ConnectionStatus.connected : ConnectionStatus.searching;
     notifyListeners();
 
+    // 150ms Polling Interval (Non-blocking & debounced)
     _pollingTimer = Timer.periodic(Duration(milliseconds: _pollingIntervalMs), (_) {
       _fetchTelemetry();
     });
@@ -92,7 +93,7 @@ class UdpService extends ChangeNotifier {
     final stopwatch = Stopwatch()..start();
     try {
       final uri = Uri.parse('http://$_espIp/data');
-      final response = await http.get(uri).timeout(const Duration(milliseconds: 700));
+      final response = await http.get(uri).timeout(const Duration(milliseconds: 600));
       stopwatch.stop();
 
       if (response.statusCode == 200) {
@@ -122,12 +123,12 @@ class UdpService extends ChangeNotifier {
     final cosVal = math.cos(nowMs / 900.0);
 
     final sim = PsuTelemetry(
-      v1: double.parse((12.0 + (sinVal * 0.15) + (math.Random().nextDouble() * 0.05)).toStringAsFixed(2)),
-      i1: double.parse((1250 + (cosVal * 120) + (math.Random().nextDouble() * 20)).toStringAsFixed(1)),
+      v1: double.parse((12.0 + (sinVal * 0.15) + (math.Random().nextDouble() * 0.04)).toStringAsFixed(2)),
+      i1: double.parse((1250 + (cosVal * 120) + (math.Random().nextDouble() * 15)).toStringAsFixed(1)),
       v2: double.parse((5.02 + (sinVal * 0.06) + (math.Random().nextDouble() * 0.02)).toStringAsFixed(2)),
-      i2: double.parse((850 + (cosVal * 80) + (math.Random().nextDouble() * 15)).toStringAsFixed(1)),
-      v3: double.parse((9.10 + (sinVal * 0.1) + (math.Random().nextDouble() * 0.04)).toStringAsFixed(2)),
-      i3: double.parse((1650 + (cosVal * 150) + (math.Random().nextDouble() * 30)).toStringAsFixed(1)),
+      i2: double.parse((850 + (cosVal * 80) + (math.Random().nextDouble() * 12)).toStringAsFixed(1)),
+      v3: double.parse((9.10 + (sinVal * 0.1) + (math.Random().nextDouble() * 0.03)).toStringAsFixed(2)),
+      i3: double.parse((1650 + (cosVal * 150) + (math.Random().nextDouble() * 25)).toStringAsFixed(1)),
       dm: double.parse((0.60 + math.Random().nextDouble() * 0.02).toStringAsFixed(2)),
       dp: double.parse((3.30 + math.Random().nextDouble() * 0.03).toStringAsFixed(2)),
       avo: double.parse((4.98 + math.Random().nextDouble() * 0.04).toStringAsFixed(2)),
@@ -172,14 +173,12 @@ class UdpService extends ChangeNotifier {
       _status = ConnectionStatus.searching;
       notifyListeners();
     }
-    // Fallback smoothly to simulation so UI never freezes
     _simulateTelemetry(dtHours);
   }
 
   Future<void> sendCommand(String target, bool state) async {
     final val = state ? 1 : 0;
     
-    // Optimistic UI state update
     _latestTelemetry = PsuTelemetry(
       v1: _latestTelemetry.v1,
       i1: _latestTelemetry.i1,
