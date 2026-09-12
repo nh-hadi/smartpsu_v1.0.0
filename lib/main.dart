@@ -171,35 +171,35 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Logo & Branding Badge
+          // Logo & Branding Badge (High-Contrast Red Carbon Emblem)
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Color(0xFFFF2233), Color(0xFFB70015)],
-                  ),
-                  borderRadius: BorderRadius.circular(5),
+                  color: const Color(0xFF22080D),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFFFF2233), width: 1.5),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFFFF2233).withOpacity(0.5),
+                      color: const Color(0xFFFF2233).withOpacity(0.4),
                       blurRadius: 8,
                     ),
                   ],
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.flash_on_rounded, color: Colors.yellowAccent, size: 14),
-                    const SizedBox(width: 4),
+                  children: const [
+                    Icon(Icons.bolt, color: Color(0xFFFFDD00), size: 16),
+                    SizedBox(width: 5),
                     Text(
                       'NURHADI',
-                      style: GoogleFonts.orbitron(
-                        fontSize: 11,
+                      style: TextStyle(
+                        fontFamily: 'JetBrains Mono',
+                        fontSize: 11.5,
                         fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: 1.2,
+                        color: Color(0xFFFF2233),
+                        letterSpacing: 1.4,
                       ),
                     ),
                   ],
@@ -235,7 +235,7 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
             ],
           ),
 
-          // Quick Channel Readouts with Smooth Animation
+          // Quick Channel Readouts with Smooth 90ms Animation
           Row(
             children: [
               _buildSmoothQuickPill('CH1', t.v1, t.i1, const Color(0xFF00E5FF)),
@@ -364,7 +364,7 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
           ),
           TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: targetV, end: targetV),
-            duration: const Duration(milliseconds: 140),
+            duration: const Duration(milliseconds: 90),
             curve: Curves.easeOutQuad,
             builder: (context, animV, _) => Text(
               '${animV.toStringAsFixed(1)}V',
@@ -374,7 +374,7 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
           const SizedBox(width: 4),
           TweenAnimationBuilder<double>(
             tween: Tween<double>(begin: targetMa, end: targetMa),
-            duration: const Duration(milliseconds: 140),
+            duration: const Duration(milliseconds: 90),
             curve: Curves.easeOutQuad,
             builder: (context, animI, _) => Text(
               '${animI.toStringAsFixed(0)}mA',
@@ -625,7 +625,7 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
               onTap: () => setState(() => _isAnalyzing = !_isAnalyzing),
               borderRadius: BorderRadius.circular(8),
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 180),
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   color: Colors.transparent,
@@ -678,7 +678,7 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
           onTap: () => setState(() => _selectedChannel = ch),
           borderRadius: BorderRadius.circular(6),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
+            duration: const Duration(milliseconds: 150),
             padding: const EdgeInsets.symmetric(vertical: 5),
             decoration: BoxDecoration(
               color: isSelected ? color.withOpacity(0.22) : Colors.transparent,
@@ -768,7 +768,7 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
             children: [
               TweenAnimationBuilder<double>(
                 tween: Tween<double>(begin: numericValue, end: numericValue),
-                duration: const Duration(milliseconds: 140),
+                duration: const Duration(milliseconds: 90),
                 curve: Curves.easeOutQuad,
                 builder: (context, animVal, _) => Text(
                   decimals == 0 ? animVal.floor().toString() : animVal.toStringAsFixed(decimals),
@@ -830,7 +830,7 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
             const SizedBox(height: 1),
             TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: val, end: val),
-              duration: const Duration(milliseconds: 140),
+              duration: const Duration(milliseconds: 90),
               curve: Curves.easeOutQuad,
               builder: (context, animV, _) => Text(
                 '${animV.toStringAsFixed(2)}V',
@@ -855,7 +855,7 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
           onTap: onToggle,
           borderRadius: BorderRadius.circular(6),
           child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
+            duration: const Duration(milliseconds: 150),
             padding: const EdgeInsets.symmetric(vertical: 4),
             decoration: BoxDecoration(
               color: isOn ? color.withOpacity(0.18) : const Color(0xFF10121A),
@@ -1011,7 +1011,7 @@ class _CyberpunkDashboardScreenState extends State<CyberpunkDashboardScreen> wit
             ),
             const SizedBox(height: 2),
             AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
+              duration: const Duration(milliseconds: 150),
               height: 2,
               width: isActive ? 22 : 0,
               decoration: BoxDecoration(

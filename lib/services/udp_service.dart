@@ -10,7 +10,7 @@ class UdpService extends ChangeNotifier {
   PsuTelemetry _latestTelemetry = PsuTelemetry();
   ConnectionStatus _status = ConnectionStatus.disconnected;
   String _espIp = '192.168.4.1';
-  int _pollingIntervalMs = 150; // Sweet spot 100-200ms
+  int _pollingIntervalMs = 100; // Strict consistent 100ms (10Hz)
   bool _isDemoMode = false;
   int _latencyMs = 0;
 
@@ -26,13 +26,13 @@ class UdpService extends ChangeNotifier {
   double _totalCapacityMah = 0.0;
   DateTime _lastTimestamp = DateTime.now();
 
-  // Real-time chart history buffer (sliding window)
+  // Sliding window buffer (80 samples = 8 seconds of continuous 100ms history)
   final List<PsuTelemetry> _telemetryHistory = [];
 
   // Terminal logs
   final List<String> _terminalLogs = [
-    '[SYSTEM] Smart PSU v1.0.0 Smooth 60FPS Engine initialized.',
-    '[SYSTEM] Telemetry Interval: 150ms (Ultra-smooth interpolation).',
+    '[SYSTEM] Smart PSU v1.0.0 High-Speed 100ms Engine active.',
+    '[SYSTEM] Constant 100ms (10Hz) continuous data intake.',
   ];
 
   // Getters
@@ -57,7 +57,7 @@ class UdpService extends ChangeNotifier {
   }
 
   void setPollingInterval(int ms) {
-    _pollingIntervalMs = ms.clamp(100, 200);
+    _pollingIntervalMs = ms.clamp(50, 500);
     startListening();
   }
 
@@ -71,7 +71,7 @@ class UdpService extends ChangeNotifier {
     _status = _isDemoMode ? ConnectionStatus.connected : ConnectionStatus.searching;
     notifyListeners();
 
-    // 150ms Polling Interval (Non-blocking & debounced)
+    // Constant strict 100ms loop
     _pollingTimer = Timer.periodic(Duration(milliseconds: _pollingIntervalMs), (_) {
       _fetchTelemetry();
     });
@@ -93,7 +93,7 @@ class UdpService extends ChangeNotifier {
     final stopwatch = Stopwatch()..start();
     try {
       final uri = Uri.parse('http://$_espIp/data');
-      final response = await http.get(uri).timeout(const Duration(milliseconds: 600));
+      final response = await http.get(uri).timeout(const Duration(milliseconds: 500));
       stopwatch.stop();
 
       if (response.statusCode == 200) {
@@ -119,16 +119,16 @@ class UdpService extends ChangeNotifier {
 
   void _simulateTelemetry(double dtHours) {
     final nowMs = DateTime.now().millisecondsSinceEpoch;
-    final sinVal = math.sin(nowMs / 1200.0);
-    final cosVal = math.cos(nowMs / 900.0);
+    final sinVal = math.sin(nowMs / 1000.0);
+    final cosVal = math.cos(nowMs / 800.0);
 
     final sim = PsuTelemetry(
-      v1: double.parse((12.0 + (sinVal * 0.15) + (math.Random().nextDouble() * 0.04)).toStringAsFixed(2)),
-      i1: double.parse((1250 + (cosVal * 120) + (math.Random().nextDouble() * 15)).toStringAsFixed(1)),
+      v1: double.parse((12.0 + (sinVal * 0.15) + (math.Random().nextDouble() * 0.03)).toStringAsFixed(2)),
+      i1: double.parse((1250 + (cosVal * 120) + (math.Random().nextDouble() * 12)).toStringAsFixed(1)),
       v2: double.parse((5.02 + (sinVal * 0.06) + (math.Random().nextDouble() * 0.02)).toStringAsFixed(2)),
-      i2: double.parse((850 + (cosVal * 80) + (math.Random().nextDouble() * 12)).toStringAsFixed(1)),
+      i2: double.parse((850 + (cosVal * 80) + (math.Random().nextDouble() * 10)).toStringAsFixed(1)),
       v3: double.parse((9.10 + (sinVal * 0.1) + (math.Random().nextDouble() * 0.03)).toStringAsFixed(2)),
-      i3: double.parse((1650 + (cosVal * 150) + (math.Random().nextDouble() * 25)).toStringAsFixed(1)),
+      i3: double.parse((1650 + (cosVal * 150) + (math.Random().nextDouble() * 20)).toStringAsFixed(1)),
       dm: double.parse((0.60 + math.Random().nextDouble() * 0.02).toStringAsFixed(2)),
       dp: double.parse((3.30 + math.Random().nextDouble() * 0.03).toStringAsFixed(2)),
       avo: double.parse((4.98 + math.Random().nextDouble() * 0.04).toStringAsFixed(2)),
@@ -200,7 +200,7 @@ class UdpService extends ChangeNotifier {
     if (!_isDemoMode) {
       try {
         final uri = Uri.parse('http://$_espIp/cmd?set=$target&val=$val');
-        await http.get(uri).timeout(const Duration(milliseconds: 500));
+        await http.get(uri).timeout(const Duration(milliseconds: 400));
         _fetchTelemetry();
       } catch (e) {
         addTerminalLog('[ERR] Gagal mengirim perintah ke $_espIp');
