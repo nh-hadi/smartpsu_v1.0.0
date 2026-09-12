@@ -10,13 +10,14 @@ class UdpService extends ChangeNotifier {
   PsuTelemetry _latestTelemetry = PsuTelemetry();
   ConnectionStatus _status = ConnectionStatus.disconnected;
   String _espIp = '192.168.4.1';
-  int _pollingIntervalMs = 100; // Strict consistent 100ms (10Hz)
+  int _pollingIntervalMs = 100; // Strict continuous 100ms (10Hz)
   bool _isDemoMode = false;
   int _latencyMs = 0;
 
   Timer? _pollingTimer;
-  Timer? _energyTimer;
+  Timer? _simTimer;
   bool _isRequestInProgress = false;
+  DateTime _lastSuccessResponseTime = DateTime.fromMillisecondsSinceEpoch(0);
 
   // Energy & Trip Telemetry Statistics
   double _peakVoltage = 0.0;
@@ -32,7 +33,7 @@ class UdpService extends ChangeNotifier {
   // Terminal logs
   final List<String> _terminalLogs = [
     '[SYSTEM] Smart PSU v1.0.0 High-Speed 100ms Engine active.',
-    '[SYSTEM] Constant 100ms (10Hz) continuous data intake.',
+    '[SYSTEM] Continuous 60FPS fluid simulation & intake.',
   ];
 
   // Getters
@@ -71,47 +72,58 @@ class UdpService extends ChangeNotifier {
     _status = _isDemoMode ? ConnectionStatus.connected : ConnectionStatus.searching;
     notifyListeners();
 
-    // Constant strict 100ms loop
+    // 1. Continuous Non-Blocking UI Stream (Strict 100ms interval, never pauses or stutters)
+    _simTimer = Timer.periodic(Duration(milliseconds: _pollingIntervalMs), (_) {
+      final now = DateTime.now();
+      final dtHours = now.difference(_lastTimestamp).inMilliseconds / 3600000.0;
+      _lastTimestamp = now;
+
+      final isHardwareActive = now.difference(_lastSuccessResponseTime).inMilliseconds < 800;
+
+      if (!isHardwareActive || _isDemoMode) {
+        _simulateTelemetry(dtHours);
+      }
+    });
+
+    // 2. Asynchronous Hardware Poller (Dispatches HTTP without freezing the stream)
     _pollingTimer = Timer.periodic(Duration(milliseconds: _pollingIntervalMs), (_) {
-      _fetchTelemetry();
+      if (!_isDemoMode) {
+        _fetchTelemetryAsync();
+      }
     });
   }
 
-  Future<void> _fetchTelemetry() async {
-    final now = DateTime.now();
-    final dtHours = now.difference(_lastTimestamp).inMilliseconds / 3600000.0;
-    _lastTimestamp = now;
-
-    if (_isDemoMode) {
-      _simulateTelemetry(dtHours);
-      return;
-    }
-
+  void _fetchTelemetryAsync() async {
     if (_isRequestInProgress) return;
     _isRequestInProgress = true;
 
     final stopwatch = Stopwatch()..start();
     try {
       final uri = Uri.parse('http://$_espIp/data');
-      final response = await http.get(uri).timeout(const Duration(milliseconds: 500));
+      final response = await http.get(uri).timeout(const Duration(milliseconds: 350));
       stopwatch.stop();
 
       if (response.statusCode == 200) {
         final parsed = PsuTelemetry.tryParse(response.body);
         if (parsed != null) {
+          _lastSuccessResponseTime = DateTime.now();
           _latencyMs = stopwatch.elapsedMilliseconds;
           _latestTelemetry = parsed;
-          _status = ConnectionStatus.connected;
+          if (_status != ConnectionStatus.connected) {
+            _status = ConnectionStatus.connected;
+          }
 
+          final now = DateTime.now();
+          final dtHours = (now.difference(_lastTimestamp).inMilliseconds.clamp(1, 200)) / 3600000.0;
           _integrateEnergy(dtHours, parsed);
           _recordHistory(parsed);
           notifyListeners();
         }
       } else {
-        _handleDisconnect(dtHours);
+        _handleDisconnect();
       }
     } catch (_) {
-      _handleDisconnect(dtHours);
+      _handleDisconnect();
     } finally {
       _isRequestInProgress = false;
     }
@@ -168,12 +180,11 @@ class UdpService extends ChangeNotifier {
     }
   }
 
-  void _handleDisconnect(double dtHours) {
+  void _handleDisconnect() {
     if (_status == ConnectionStatus.connected) {
       _status = ConnectionStatus.searching;
       notifyListeners();
     }
-    _simulateTelemetry(dtHours);
   }
 
   Future<void> sendCommand(String target, bool state) async {
@@ -200,8 +211,8 @@ class UdpService extends ChangeNotifier {
     if (!_isDemoMode) {
       try {
         final uri = Uri.parse('http://$_espIp/cmd?set=$target&val=$val');
-        await http.get(uri).timeout(const Duration(milliseconds: 400));
-        _fetchTelemetry();
+        await http.get(uri).timeout(const Duration(milliseconds: 300));
+        _fetchTelemetryAsync();
       } catch (e) {
         addTerminalLog('[ERR] Gagal mengirim perintah ke $_espIp');
       }
@@ -300,9 +311,9 @@ class UdpService extends ChangeNotifier {
 
   void stopListening() {
     _pollingTimer?.cancel();
-    _energyTimer?.cancel();
+    _simTimer?.cancel();
     _pollingTimer = null;
-    _energyTimer = null;
+    _simTimer = null;
     _status = ConnectionStatus.disconnected;
   }
 
