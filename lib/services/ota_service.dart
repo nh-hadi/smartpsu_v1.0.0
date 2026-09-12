@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 
 class FirmwareFile {
   final String name;
@@ -15,17 +15,14 @@ class FirmwareFile {
 class OtaService {
   static Future<FirmwareFile?> pickFirmwareFile() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['bin'],
-        withData: true,
+      const typeGroup = XTypeGroup(
+        label: 'Firmware (.bin)',
+        extensions: <String>['bin'],
       );
-
-      if (result != null && result.files.isNotEmpty) {
-        final f = result.files.first;
-        if (f.bytes != null && f.bytes!.isNotEmpty) {
-          return FirmwareFile(name: f.name, bytes: f.bytes!);
-        }
+      final XFile? file = await openFile(acceptedTypeGroups: <XTypeGroup>[typeGroup]);
+      if (file != null) {
+        final bytes = await file.readAsBytes();
+        return FirmwareFile(name: file.name, bytes: bytes);
       }
     } catch (e) {
       debugPrint('[OTA] Error picking file: $e');
@@ -57,16 +54,17 @@ class OtaService {
       );
 
       onProgress(0.9);
+      final response = await http.Response.fromStream(streamedResponse);
 
-      if (streamedResponse.statusCode == 200) {
+      if (response.statusCode == 200 && response.body.contains('UPDATE_OK')) {
         onProgress(1.0);
         return true;
       } else {
-        onError('Gagal upload: HTTP ${streamedResponse.statusCode}');
+        onError('Gagal update: ${response.body}');
         return false;
       }
     } catch (e) {
-      onError('Terjadi kesalahan saat upload OTA: $e');
+      onError('Error: $e');
       return false;
     }
   }
