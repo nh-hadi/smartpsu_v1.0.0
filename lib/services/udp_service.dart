@@ -53,12 +53,16 @@ class UdpService extends ChangeNotifier {
   List<String> get terminalLogs => List.unmodifiable(_terminalLogs);
 
   void setEspIp(String ip) {
-    _espIp = ip.trim();
-    notifyListeners();
+    final cleanIp = ip.trim().replaceAll('http://', '').replaceAll('/', '');
+    if (cleanIp.isNotEmpty && cleanIp != _espIp) {
+      _espIp = cleanIp;
+      startListening();
+      notifyListeners();
+    }
   }
 
   void setPollingInterval(int ms) {
-    _pollingIntervalMs = ms.clamp(50, 500);
+    _pollingIntervalMs = ms.clamp(100, 1000);
     startListening();
   }
 
@@ -72,20 +76,20 @@ class UdpService extends ChangeNotifier {
     _status = _isDemoMode ? ConnectionStatus.connected : ConnectionStatus.searching;
     notifyListeners();
 
-    // 1. Continuous Non-Blocking UI Stream (Strict 100ms interval, never pauses or stutters)
+    // 1. Continuous Non-Blocking UI Stream
     _simTimer = Timer.periodic(Duration(milliseconds: _pollingIntervalMs), (_) {
       final now = DateTime.now();
       final dtHours = now.difference(_lastTimestamp).inMilliseconds / 3600000.0;
       _lastTimestamp = now;
 
-      final isHardwareActive = now.difference(_lastSuccessResponseTime).inMilliseconds < 800;
+      final isHardwareActive = now.difference(_lastSuccessResponseTime).inMilliseconds < 1200;
 
       if (!isHardwareActive || _isDemoMode) {
         _simulateTelemetry(dtHours);
       }
     });
 
-    // 2. Asynchronous Hardware Poller (Dispatches HTTP without freezing the stream)
+    // 2. Asynchronous Hardware Poller
     _pollingTimer = Timer.periodic(Duration(milliseconds: _pollingIntervalMs), (_) {
       if (!_isDemoMode) {
         _fetchTelemetryAsync();
@@ -100,7 +104,7 @@ class UdpService extends ChangeNotifier {
     final stopwatch = Stopwatch()..start();
     try {
       final uri = Uri.parse('http://$_espIp/data');
-      final response = await http.get(uri).timeout(const Duration(milliseconds: 350));
+      final response = await http.get(uri).timeout(const Duration(milliseconds: 900));
       stopwatch.stop();
 
       if (response.statusCode == 200) {
@@ -114,7 +118,7 @@ class UdpService extends ChangeNotifier {
           }
 
           final now = DateTime.now();
-          final dtHours = (now.difference(_lastTimestamp).inMilliseconds.clamp(1, 200)) / 3600000.0;
+          final dtHours = (now.difference(_lastTimestamp).inMilliseconds.clamp(1, 300)) / 3600000.0;
           _integrateEnergy(dtHours, parsed);
           _recordHistory(parsed);
           notifyListeners();
@@ -278,25 +282,74 @@ class UdpService extends ChangeNotifier {
 
   Future<Map<String, dynamic>> testConnection(String customMessage) async {
     final stopwatch = Stopwatch()..start();
+    
+    // 1. Coba endpoint /test
     try {
       final uri = Uri.parse('http://$_espIp/test?msg=${Uri.encodeComponent(customMessage)}');
-      final response = await http.get(uri).timeout(const Duration(seconds: 3));
+      final response = await http.get(uri).timeout(const Duration(seconds: 2));
       stopwatch.stop();
 
       if (response.statusCode == 200) {
+        _status = ConnectionStatus.connected;
+        _lastSuccessResponseTime = DateTime.now();
+        _latencyMs = stopwatch.elapsedMilliseconds;
+        notifyListeners();
+        _fetchTelemetryAsync();
         return {
           'success': true,
           'latency_ms': stopwatch.elapsedMilliseconds,
           'body': response.body,
           'sent': customMessage,
         };
-      } else {
+      }
+    } catch (_) {
+      // Lanjut coba /ping jika /test belum ready
+    }
+
+    // 2. Fallback: Coba endpoint /ping
+    try {
+      final pingUri = Uri.parse('http://$_espIp/ping');
+      final pingRes = await http.get(pingUri).timeout(const Duration(seconds: 2));
+      stopwatch.stop();
+
+      if (pingRes.statusCode == 200) {
+        _status = ConnectionStatus.connected;
+        _lastSuccessResponseTime = DateTime.now();
+        _latencyMs = stopwatch.elapsedMilliseconds;
+        notifyListeners();
+        _fetchTelemetryAsync();
         return {
-          'success': false,
+          'success': true,
           'latency_ms': stopwatch.elapsedMilliseconds,
-          'error': 'HTTP Status ${response.statusCode}',
-          'sent': customMessage,
+          'body': pingRes.body,
+          'sent': 'PING (/ping)',
         };
+      }
+    } catch (_) {
+      // Lanjut coba /data
+    }
+
+    // 3. Fallback: Coba endpoint /data
+    try {
+      final dataUri = Uri.parse('http://$_espIp/data');
+      final dataRes = await http.get(dataUri).timeout(const Duration(seconds: 2));
+      stopwatch.stop();
+
+      if (dataRes.statusCode == 200) {
+        final parsed = PsuTelemetry.tryParse(dataRes.body);
+        if (parsed != null) {
+          _latestTelemetry = parsed;
+          _status = ConnectionStatus.connected;
+          _lastSuccessResponseTime = DateTime.now();
+          _latencyMs = stopwatch.elapsedMilliseconds;
+          notifyListeners();
+          return {
+            'success': true,
+            'latency_ms': stopwatch.elapsedMilliseconds,
+            'body': dataRes.body,
+            'sent': 'DATA (/data)',
+          };
+        }
       }
     } catch (e) {
       stopwatch.stop();
@@ -307,6 +360,14 @@ class UdpService extends ChangeNotifier {
         'sent': customMessage,
       };
     }
+
+    stopwatch.stop();
+    return {
+      'success': false,
+      'latency_ms': stopwatch.elapsedMilliseconds,
+      'error': 'Gagal terhubung ke $_espIp (Tidak ada respon dari ESP)',
+      'sent': customMessage,
+    };
   }
 
   void stopListening() {
