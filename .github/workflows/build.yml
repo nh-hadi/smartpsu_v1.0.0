@@ -1,4 +1,4 @@
-name: Flutter Build APK
+name: Flutter Build (Android & Windows)
 
 on:
   push:
@@ -12,7 +12,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  # ==========================================
+  # JOB 1: BUILD ANDROID APK
+  # ==========================================
+  build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
 
@@ -42,3 +45,39 @@ jobs:
         with:
           name: digitalpsu-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+  # ==========================================
+  # JOB 2: BUILD WINDOWS APPLICATION
+  # ==========================================
+  build-windows:
+    name: Build Windows Application
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      - name: Enable Windows Desktop
+        run: flutter config --enable-windows-desktop
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Windows Release
+        run: flutter build windows --release
+
+      - name: Compress Windows Bundle
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "digitalpsu-windows-x64.zip"
+
+      - name: Upload Windows Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: digitalpsu-windows-x64
+          path: digitalpsu-windows-x64.zip
