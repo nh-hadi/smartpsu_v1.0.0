@@ -1,17 +1,18 @@
-name: Build SmartPSU (Android & Windows)
+name: Flutter Build APK
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
+      - master
   pull_request:
-    branches: [ "main" ]
-  workflow_dispatch: # Memungkinkan build manual dari tab Actions di GitHub
+    branches:
+      - main
+      - master
+  workflow_dispatch:
 
 jobs:
-  # ==========================================
-  # JOB 1: BUILD ANDROID APK
-  # ==========================================
-  build-android:
+  build:
     name: Build Android APK
     runs-on: ubuntu-latest
 
@@ -19,72 +20,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Java JDK (17)
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
-          cache: 'gradle'
 
-      - name: Set up Flutter SDK
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          cache: true
 
-      - name: Verify Flutter & Environment
-        run: flutter doctor -v
-
-      - name: Get Dependencies
+      - name: Install Dependencies
         run: flutter pub get
 
-      - name: Build Android Release APK
+      - name: Build APK Release
         run: flutter build apk --release
 
-      - name: Upload Android APK Artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: SmartPSU-Android-APK
+          name: digitalpsu-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
-
-  # ==========================================
-  # JOB 2: BUILD WINDOWS (EXE)
-  # ==========================================
-  build-windows:
-    name: Build Windows Application
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Set up Flutter SDK
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - name: Enable Windows Desktop Support
-        run: flutter config --enable-windows-desktop
-
-      - name: Verify Flutter & Environment
-        run: flutter doctor -v
-
-      - name: Get Dependencies
-        run: flutter pub get
-
-      - name: Build Windows Release
-        run: flutter build windows --release
-
-      - name: Compress Windows Release Bundle
-        shell: pwsh
-        run: |
-          Compress-Archive -Path "build\windows\x64\runner\Release\*" -DestinationPath "SmartPSU-Windows-x64.zip"
-
-      - name: Upload Windows Artifact (ZIP)
-        uses: actions/upload-artifact@v4
-        with:
-          name: SmartPSU-Windows-x64
-          path: SmartPSU-Windows-x64.zip
-          if-no-files-found: error
